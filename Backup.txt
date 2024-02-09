@@ -1,0 +1,110 @@
+import * as React from "react";
+import { sp } from "@pnp/sp/presets/all";
+// import { SPHttpClient } from "@microsoft/sp-http";
+import { PrimaryButton } from '@fluentui/react/lib/Button';
+import {
+  DetailsList,
+  DetailsListLayoutMode,
+  IIconProps,
+  IconButton,
+  // PrimaryButton
+}
+  from '@fluentui/react'
+// Icons 
+// const addIcon: IIconProps = { iconName: 'Add' }
+const editIcon: IIconProps = { iconName: 'Edit' }
+const deleteIcon: IIconProps = { iconName: 'Delete' }
+interface DataItem {
+  ID: number;
+  Title: string;
+  Name: string;
+}
+const [listData, setListData] = React.useState<DataItem[]>([]);
+
+function TestComponent() {
+  const getDataFromList = async () => {
+    console.log("Calling API")
+    let res = await sp.web.lists.getByTitle("TestList").items.get();
+    console.log("ResponseData of Get Element", res);
+    try {
+      console.log("Extracting Data from API")
+      const extractedData = res.map(item => ({
+        ID: item.ID,
+        Title: item.Title,
+        Name: item.Name
+      }));
+      console.log("Data Extracted From API")
+      setListData(extractedData);
+      console.log(extractedData);
+      console.log("Filtered Data From get Call", listData)
+    } catch (error) {
+      console.log("Error Occured in setting Response Data to Set State")
+    }
+    const extractedData = res.map(item => ({
+      ID: item.ID,
+      Title: item.Title,
+      Name: item.Name
+    }));
+    setListData(extractedData);
+    console.log("Filtered Data From get Call", listData)
+  };
+
+  const insertDataIntoList = async () => {
+    let res = await sp.web.lists.getByTitle("TestList").items.add({
+      Title: "Mr.",
+      Name: "Name 1",
+    });
+    console.log("ResponseData of Push Element", res);
+  };
+
+  const list = sp.web.lists.getByTitle("TestList");
+  const updateDataList = async () => {
+    let res = await list.items.getById(3).update({
+      Title: "New Title2",
+      Name: "New Name2",
+    });
+    console.log("ResponseData of Update Element", res);
+  };
+
+  const deleteDataList = async () => {
+    let res = await list.items.getById(1).delete();
+    console.log("ResponseData of Delete Element", res);
+  };
+  React.useEffect(() => {
+    void getDataFromList();
+    void insertDataIntoList();
+    void updateDataList();
+    void deleteDataList();
+  }, []);
+
+
+  const handleClick = () => {
+    console.log("Btn Clicked")
+    setListData([]);
+  }
+  return <div>
+    <PrimaryButton text="Primary" onClick={handleClick} />
+    <DetailsList
+      items={listData}
+      columns={[
+        { key: 'ID', name: 'Sl.No', fieldName: 'ID', minWidth: 100 },
+        { key: 'name', name: 'Title', fieldName: 'Usn', minWidth: 100 },
+        { key: 'reg', name: 'Name', fieldName: 'Usn0', minWidth: 100 },
+        // { key: 'result', name: 'MobileNo', fieldName: 'MobileNo', minWidth: 100 },
+        {
+          key: 'action', name: 'Actions', fieldName: 'action', minWidth: 100, onRender: (item) => (
+            <div>
+              <IconButton iconProps={editIcon} />
+              <IconButton iconProps={deleteIcon} />
+              {/* <IconButton iconProps={editIcon} onClick={() => openPanel(item.Id)} /> */}
+              {/* <IconButton iconProps={deleteIcon} onClick={(Id) => onDeleteStudent(item.Id)} /> */}
+            </div>
+          )
+        },
+      ]}
+      setKey='set'
+      layoutMode={DetailsListLayoutMode.fixedColumns}
+    />  </div>;
+}
+
+export default TestComponent;
