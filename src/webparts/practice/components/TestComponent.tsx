@@ -16,7 +16,7 @@ function TestComponent() {
 
   //Get Data From List & Render it
   const getDataFromList = async () => {
-    let res = await sp.web.lists.getByTitle("TestList").items.get();
+    let res = await sp.web.lists.getByTitle("TestList").items.select("*,People/Title").expand("People").get();
     console.log("ResponseData of Get Element", res);
     try {
       if (res.length) {
@@ -24,8 +24,11 @@ function TestComponent() {
         let extractedData = res.map(item => ({
           ID: item?.ID,
           Title: item?.Title,
-          Name: item?.Name
+          Name: item?.Name,
+          People: item?.People ? item.People.Title : null,
+
         }));
+        console.log("Data with PP", extractedData)
         console.log("Data Extracted From API")
 
         setListData(extractedData);
@@ -116,6 +119,7 @@ function TestComponent() {
         { key: 'ID', name: 'Sl.No', fieldName: 'ID', minWidth: 100 },
         { key: 'reg', name: 'Title', fieldName: 'Title', minWidth: 100 },
         { key: 'name', name: 'Name', fieldName: 'Name', minWidth: 100 },
+        { key: 'people', name: 'People', fieldName: 'People', minWidth: 100 },
         {
           key: 'action', name: 'Actions', fieldName: 'action', minWidth: 100, onRender: (item) => (
             <div>

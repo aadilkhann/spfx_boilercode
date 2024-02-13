@@ -21,6 +21,7 @@ export default class Practice extends React.Component<IPracticeProps, {}> {
       // environmentMessage,
       // hasTeamsContext,
       // userDisplayName,
+      // context
     } = this.props;
 
     return (
